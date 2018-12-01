@@ -1,10 +1,13 @@
-[![Build Status](https://travis-ci.org/kigster/cookbook-ubuntu-system.svg?branch=master)](https://travis-ci.org/kigster/cookbook-ubuntu-system)
+[![Build Status](https://travis-ci.org/kigster/cookbook-auto-updater.svg?branch=master)](https://travis-ci.org/kigster/cookbook-auto-updater)
 
-# Ubuntu System
+# Chef Cookbook: Auto Updater
 
-This Boss Cookbook can be used on a recent Ubuntu image to:
+> Primarily for Ubuntu at the moment, as it uses `apt`. 
+
+This Cookbook can be used on a recent Ubuntu image to:
 
  * Set it's timezone
+
  * Periodically run apt-update in a non-interactive way, forcing kernel updates and other security patches to be aggressively applied on a smart schedule. 
 
 > This code is running in production in at least two companies.
