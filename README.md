@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/kigster/cookbook-ubuntu-system.svg?branch=master)](https://travis-ci.org/kigster/cookbook-ubuntu-system)
+
 # Ubuntu System
 
 This Boss Cookbook can be used on a recent Ubuntu image to:
@@ -46,5 +48,5 @@ Bug reports and pull requests are welcome on GitHub at [https://github.com/kigst
 
 ## License
 
-&copy; 2018 Flow, Inc. Inc. All rights reserved.
+&copy; 2018 Konstantin Gredeskoul, All rights reserved. MIT License.
 
