@@ -16,35 +16,37 @@ Since updates may require rebooting the server, the resource will perform it onl
 ## Attribute Configuration
 
 ```ruby
-# Set the time zone for the server.
-default['ubuntu']['system']['timezone'] = 'America/Los_Angeles'
+# Set the time zone (optional)
+default['auto-updater']['timezone'] = 'America/Los_Angeles'
 
-# Globally disable these updates.
-default['ubuntu']['system']['upgrade']['enabled'] = true
+# This must be set to true for auto-updater to work
+default['auto-updater']['update']['enabled'] = true
 
-# if the server hasn't auto-upgraded in this many days — do it after this many days
-default['ubuntu']['system']['upgrade']['interval-days'] = 15
+# Time to wait between major updates take place
+default['auto-updater']['update']['check_interval_hours'] = 24 * 15
 
-# if we reboot all of our servers at the same time we'll most likely take the site
-# down as well. Instead of auto-upgrading servers all on the same day (and possibly hour),
-# let's stagger them across a configurable period, in this case — 7 days.
-default['ubuntu']['system']['upgrade']['stagger'] = 3
+# This delay is calculated using this number, plus/minus a semi-random number
+# which is always the same for the same node. This ensures that if there is a
+# dangerous upgrade that causes servers not to come back up, you won't end up
+# with the entire fleet of servers down, but will start seeing them go down
+# gradually.
+default['auto-updater']['update']['node_check_delay_hours'] = 24 * 3
 
-# Setting this to true will force apt-get upgrade/dist-ugprade on every chef-run
-# but reboot would only happen if actual updates were installed that require restart.
-default['ubuntu']['system']['upgrade']['force'] = false
+# Setting this to true will force full update on every run, assuming there is
+# something to update.
+default['auto-updater']['update']['force_update_now'] = false
 
 # Setting this to true disables reboot, even if some updates require it.
-default['ubuntu']['system']['upgrade']['no_reboot'] = false
+default['auto-updater']['update']['reboot_if_needed'] = true
 
-# This value will be set by the resource to last time it was updated.
-# Resetting this to nil on the node forces auto-update just once.
-default['ubuntu']['system']['upgrade']['last-upgraded-at'] = nil
+# This is the field where the resource will save it's last time the
+# update ran. This field is for internal use only.
+default['auto-updater']['update']['last_update_at'] = nil
 ```
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at [https://github.com/kigster/cookbook-ubuntu-system](https://github.com/kigster/cookbook-ubuntu-system).
+Bug reports and pull requests are welcome on GitHub at [https://github.com/kigster/cookbook-auto-updater](https://github.com/kigster/cookbook-auto-updater).
 
 ## License
 

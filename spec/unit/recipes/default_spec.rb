@@ -1,5 +1,5 @@
 #
-# Cookbook:: ubuntu-system
+# Cookbook:: auto-updater
 # Spec:: default
 #
 # The MIT License (MIT)
@@ -26,19 +26,19 @@
 
 require 'spec_helper'
 
-describe 'ubuntu-system::default' do
-  context 'When all attributes are default, on an Ubuntu 16.04' do
+describe 'auto-updater::default' do
+  context 'When all attributes are default, on an Ubuntu 18.04' do
 
-    let(:chef_run) do
-      # for a complete list of available platforms and versions see:
-      # https://github.com/customink/fauxhai/blob/master/PLATFORMS.md
-      runner = ChefSpec::ServerRunner.new(platform: 'ubuntu', version: '16.04')
-      runner.converge(described_recipe)
+    cached(:chef_run) do
+      ChefSpec::SoloRunner.new(platform: 'ubuntu', version: '18.04').converge(described_recipe)
     end
 
-    it 'converges successfully' do
-      stub_command('timedatectl | grep America/Los_Angeles')
-      expect { chef_run }.to_not raise_error
+    let(:node) { chef_run.node }
+
+    it 'should execute the custom resource' do
+      expect(chef_run.node.normal['auto-updater']['update']['last_update_at']).to_not be_nil
+      expect(chef_run).to run_auto_updater_update('Automatic Update of Ubuntu Packages and Kernel')
+      expect(chef_run.node.normal['auto-updater']['update']['last_update_at']).to_not be_nil
     end
   end
 end

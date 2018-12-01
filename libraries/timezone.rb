@@ -2,7 +2,7 @@ module UbuntuSystem
   # noinspection ALL
   class Timezone < Chef::Resource
 
-    resource_name :ubuntu_system_timezone
+    resource_name :auto_updater_timezone
     property :timezone, String, name_property: true
 
     action :run do

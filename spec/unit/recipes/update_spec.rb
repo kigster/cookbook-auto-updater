@@ -1,5 +1,5 @@
 #
-# Cookbook:: ubuntu-system
+# Cookbook:: auto-updater
 # Spec:: default
 #
 # The MIT License (MIT)
@@ -26,7 +26,7 @@
 
 require 'spec_helper'
 
-describe 'ubuntu-system::upgrade' do
+describe 'auto-updater::update' do
   context 'When all attributes are default, on an Ubuntu 18.04' do
 
     cached(:chef_run) do
@@ -34,23 +34,22 @@ describe 'ubuntu-system::upgrade' do
     end
 
     let(:node) { chef_run.node }
-    let(:attrs) { node['ubuntu']['system']['upgrade'] }
+    let(:attrs) { node['auto-updater']['update'] }
 
     it 'should correctly set attributes' do
-      pp attrs
       expect(attrs['enabled']).to be(true)
-      expect(attrs['interval-days']).to eq(15)
-      expect(attrs['stagger']).to eq(3)
-      expect(attrs['force']).to be(false)
-      expect(attrs['no_reboot']).to be(false)
-      expect(attrs['last-upgraded-at']).to be_nil
+      expect(attrs['check_interval_hours']).to eq(24*15)
+      expect(attrs['node_check_delay_hours']).to eq(24 * 3)
+      expect(attrs['force_update_now']).to be(false)
+      expect(attrs['reboot_if_needed']).to be(true)
+      expect(attrs['last_update_at']).to be_nil
     end
 
 
     it 'should execute the custom resource' do
-      expect(chef_run).to run_ubuntu_system_upgrade('Automatic Update of Ubuntu Packages and Kernel')
-      expect(chef_run.node.normal['ubuntu']['system']['upgrade']['last-upgraded-at']).to_not be_nil
-
+      expect(chef_run.node['auto-updater']['update']['last_update_at']).to be_nil
+      expect(chef_run).to run_auto_updater_update('Automatic Update of Ubuntu Packages and Kernel')
+      expect(chef_run.node.normal['auto-updater']['update']['last_update_at']).to_not be_nil
     end
 
   end

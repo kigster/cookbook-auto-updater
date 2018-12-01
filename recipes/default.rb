@@ -1,3 +1,3 @@
 
-include_recipe 'ubuntu-system::timezone'
-include_recipe 'ubuntu-system::upgrade'
+include_recipe 'auto-updater::timezone'
+include_recipe 'auto-updater::update'

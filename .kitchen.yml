@@ -13,13 +13,13 @@ verifier:
   name: inspec
 
 platforms:
-  - name: ubuntu-16.04
+  - name: ubuntu-18.04
   - name: centos-7
 
 suites:
   - name: default
     run_list:
-      - recipe[ubuntu-system::default]
+      - recipe[auto-updater::default]
     verifier:
       inspec_tests:
         - test/smoke/default

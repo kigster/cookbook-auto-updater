@@ -1,1 +1,1 @@
-ubuntu_system_timezone node['ubuntu']['system']['timezone']
+auto_updater_timezone node['auto-updater']['timezone']
