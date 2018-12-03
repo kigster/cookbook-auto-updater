@@ -1,45 +1,6 @@
 module AutoUpdater
   # noinspection ALL
   class Update < Chef::Resource
-    def apt_update(apt_args, env)
-      execute 'apt-auto-update' do
-        command 'apt-get -y update'
-        live_stream true
-        environment env
-        user 'root'
-        cwd '/'
-      end
-
-      execute 'dpkg --configure -a' do
-        user 'root'
-        cwd '/'
-        ignore_failure true
-      end
-
-      execute 'apt-auto-update' do
-        command "apt-get -y #{apt_args} update"
-        live_stream true
-        environment env
-        user 'root'
-        cwd '/'
-      end
-
-      execute 'apt-dist-update' do
-        command "apt-get -y #{apt_args} dist-update"
-        live_stream true
-        environment env
-        user 'root'
-        cwd '/'
-      end
-
-      execute 'apt-autoremove' do
-        command 'apt autoremove -y'
-        environment env
-        ignore_failure true
-        action :run
-      end
-    end
-
     resource_name :auto_updater_update
 
     property :update_message, String, name_property: true
@@ -50,32 +11,65 @@ module AutoUpdater
     property :force_update_now, [true, false], default: false
     property :node_name, String
 
-    def self.nodes_name(r)
-      (r.node_name || node['name'])
-    end
-
     action :run do
       r = new_resource
 
       require 'digest'
       require 'colored2'
 
-      offset             = (Digest::MD5.hexdigest(hashed_name).gsub(/[a-f]/i, '').to_i % r.node_check_delay_hours) - r.node_check_delay_hours
+      node_display_name  = r.node_name || node['name']
+      offset             = (Digest::MD5.hexdigest(node_display_name).gsub(/[a-f]/i, '').to_i % r.node_check_delay_hours) - r.node_check_delay_hours
       period_hours       = r.check_interval_hours + offset
       period_seconds     = period_hours * 60 * 60
       last_update        = node['auto-updater']['update']['last_update_at'] || 0
       second_till_update = (Time.now.to_i - last_update) - period_seconds
-      host_name          = nodes_name(r).bold.green
+      host_name          = node_display_name.bold.green
 
       if r.force_update_now || last_update.nil? || second_till_update > 0
         env = { 'DEBIAN_FRONTEND' => 'noninteractive' }
         Chef::Log.warn("\n\n========> WARNING! Auto-Update of host #{host_name} starting, reboot may be required...")
         Chef::Log.warn("\n\n========>          Last updated at #{last_update ? Time.at(last_update).to_s : '(never)'}")
 
-        reboot('reboot instance') { action :nothing } unless r.reboot_if_needed
+        reboot('reboot instance') { action :nothing } if r.reboot_if_needed
 
         apt_args = '-o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"'
-        apt_update(apt_args, env)
+
+        execute 'apt-auto-update' do
+          command 'apt-get -y update'
+          live_stream true
+          environment env
+          user 'root'
+          cwd '/'
+        end
+
+        execute 'dpkg --configure -a' do
+          user 'root'
+          cwd '/'
+          ignore_failure true
+        end
+
+        execute 'apt-auto-update' do
+          command "apt-get -y #{apt_args} update"
+          live_stream true
+          environment env
+          user 'root'
+          cwd '/'
+        end
+
+        execute 'apt-dist-upgrade' do
+          command "apt-get -y #{apt_args} dist-upgrade"
+          live_stream true
+          environment env
+          user 'root'
+          cwd '/'
+        end
+
+        execute 'apt-autoremove' do
+          command 'apt autoremove -y'
+          environment env
+          ignore_failure true
+          action :run
+        end
 
         # Save when we last updated.
         node.normal['auto-updater']['update']['last_update_at'] = Time.now.to_i
@@ -97,9 +91,8 @@ module AutoUpdater
                              :green
                            end
         update_message   = "#{sprintf '%.2f', days_till_update} days"
-        update_message   = update_message.send(color) if update_ + message.respond_to?(color)
-        Chef::Log.warn("\n\n———————————→  NOTE: #{node_name} will auto-update in #{update_message} |————————————— \n\n")
-
+        update_message   = update_message.send(color) if update_message.respond_to?(color)
+        Chef::Log.warn("\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯  NOTE: #{node_display_name} will auto-update in #{update_message} ⎯⎯⎯⎯⎯⎯⎯⎯⎯ \n\n")
       end
     end
   end
