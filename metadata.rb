@@ -7,8 +7,8 @@ license 'MIT'
 description 'Sets the timezone and periodically performs a full ' +
             'non-interactive upgrade on a schedule, sometimes requiring a reboot.'
 
-source_url 'https://github.com/kigster/auto-updater'
-issues_url 'https://github.com/kigster/auto-updater/issues'
+source_url 'https://github.com/kigster/cookbook-auto-updater'
+issues_url 'https://github.com/kigster/cookbook-auto-updater/issues'
 
 chef_version '>= 12.1' if respond_to?(:chef_version)
 
@@ -16,7 +16,7 @@ gem 'colored2', '~> 3.1.2'
 
 supports 'ubuntu'
 
-version '0.2.0'
+version '0.2.1'
 
 long_description <<~EOF
 = DESCRIPTION:
@@ -99,5 +99,6 @@ auto_updater_update 'Auto-Update of dev001' do
   reboot_if_needed true
   action :run
 end
-````
+```
+
 EOF
