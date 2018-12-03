@@ -24,3 +24,13 @@ default['auto-updater']['update']['reboot_if_needed'] = true
 # This is the field where the resource will save it's last time the
 # update ran. This field is for internal use only.
 default['auto-updater']['update']['last_update_at'] = nil
+
+
+# Custom Packages
+default['auto-updater']['packages'] = %w(
+      htop
+      silversearcher-ag
+      zip
+      libjemalloc-dev
+      imagemagick
+).map { |p| AutoUpdater::Package.new(p) }

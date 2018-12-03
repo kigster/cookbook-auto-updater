@@ -7,6 +7,6 @@ if config['enabled']
     node_check_delay_hours config['node_check_delay_hours'] # how much random +/- days do we want to add/subtract to avoid auto-upgrading all at once.
     force_update_now config['force_update_now'] # if this is set to true, forces to run update.
     reboot_if_needed config['reboot_if_needed'] # set this to true if you want to prevent automatic reboots.
-    action :run
   end
 end
+
