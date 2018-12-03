@@ -1,61 +1,14 @@
-module UbuntuSystem
+module AutoUpdater
   # noinspection ALL
   class Update < Chef::Resource
-
-    resource_name :auto_updater_update
-
-    property :update_message, String, name_property: true
-    # How often (in hours) to check for updates, and if necessary update and reboot?
-    property :check_interval_hours, Numeric, default: 24 * 30
-    property :node_check_delay_hours, Numeric, default: 24 * 4 # +/- 4 days gives about 8 days total.
-    property :reboot_if_needed, [true, false], default: false
-    property :force_update_now, [true, false], default: false
-    property :node_name, String
-
-    def self.nodes_name(r)
-      (r.node_name || node['name'])
-    end
-
-    action :run do
-      r = new_resource
-
-      require 'digest'
-      require 'colored2'
-
-      # computes the update days offset for this particular server, using servers name
-      # and machine_id (if defined), and MD5 as a hashing function.
-      hashed_name, last_update, second_till_update = calc_secs_till_update(r)
-
-      host_name = nodes_name(r).bold.green
-
-      if r.force_update_now || last_update.nil? || second_till_update > 0
-        env = { 'DEBIAN_FRONTEND' => 'noninteractive' }
-        Chef::Log.warn("\n\n========> WARNING! Auto-Update of host #{host_name} starting, reboot may be required...")
-        Chef::Log.warn("\n\n========>          Last updated at #{last_update ? Time.at(last_update).to_s : '(never)'}")
-
-        reboot('reboot instance') { action :nothing } unless r.reboot_if_needed
-
-        apt_args = '-o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"'
-        apt_update(apt_args, env)
-
-        # Save when we last updated.
-        node.normal['auto-updater']['update']['last_update_at'] = Time.now.to_i
-
-        check_if_reboot_needed(r)
-      else
-        announce_next_update(host_name, second_till_update)
-      end
-    end
-
     class << self
       def calc_secs_till_update(r)
-        hashed_name        = nodes_name(r)
         offset             = (Digest::MD5.hexdigest(hashed_name).gsub(/[a-f]/i, '').to_i % r.node_check_delay_hours) - r.node_check_delay_hours
         period_hours       = r.check_interval_hours + offset
         period_seconds     = period_hours * 60 * 60
         last_update        = node['auto-updater']['update']['last_update_at'] || 0
         second_till_update = (Time.now.to_i - last_update) - period_seconds
-        return hashed_name, last_update, second_till_update
+        return last_update, second_till_update
       end
 
       def apt_update(apt_args, env)
@@ -121,6 +74,50 @@ module UbuntuSystem
         end
       end
     end
+
+    resource_name :auto_updater_update
+
+    property :update_message, String, name_property: true
+    # How often (in hours) to check for updates, and if necessary update and reboot?
+    property :check_interval_hours, Numeric, default: 24 * 30
+    property :node_check_delay_hours, Numeric, default: 24 * 4 # +/- 4 days gives about 8 days total.
+    property :reboot_if_needed, [true, false], default: false
+    property :force_update_now, [true, false], default: false
+    property :node_name, String
+
+    def self.nodes_name(r)
+      (r.node_name || node['name'])
+    end
+
+    action :run do
+      r = new_resource
+
+      require 'digest'
+      require 'colored2'
+
+      # computes the update days offset for this particular server, using servers name
+      # and machine_id (if defined), and MD5 as a hashing function.
+      last_update, second_till_update = calc_secs_till_update(r)
+
+      host_name = nodes_name(r).bold.green
+
+      if r.force_update_now || last_update.nil? || second_till_update > 0
+        env = { 'DEBIAN_FRONTEND' => 'noninteractive' }
+        Chef::Log.warn("\n\n========> WARNING! Auto-Update of host #{host_name} starting, reboot may be required...")
+        Chef::Log.warn("\n\n========>          Last updated at #{last_update ? Time.at(last_update).to_s : '(never)'}")
+
+        reboot('reboot instance') { action :nothing } unless r.reboot_if_needed
+
+        apt_args = '-o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"'
+        apt_update(apt_args, env)
+
+        # Save when we last updated.
+        node.normal['auto-updater']['update']['last_update_at'] = Time.now.to_i
+
+        check_if_reboot_needed(r)
+      else
+        announce_next_update(host_name, second_till_update)
+      end
+    end
   end
 end
-

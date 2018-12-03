@@ -1,4 +1,4 @@
-module UbuntuSystem
+module AutoUpdater
   # noinspection ALL
   class Timezone < Chef::Resource
 
