@@ -1,4 +1,4 @@
-node['auto-updater']['packages'].each do |package|
+node['auto-updater']['packages'].map { |p| AutoUpdater::Package.new(p) }.each do |package|
   package package.name do
     package_name package.package_name if package.package_name
     version package.version if package.version

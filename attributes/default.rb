@@ -33,4 +33,4 @@ default['auto-updater']['packages'] = %w(
       zip
       libjemalloc-dev
       imagemagick
-).map { |p| AutoUpdater::Package.new(p) }
+)

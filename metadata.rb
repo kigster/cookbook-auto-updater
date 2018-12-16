@@ -16,7 +16,7 @@ gem 'colored2', '~> 3.1.2'
 
 supports 'ubuntu'
 
-version '0.2.1'
+version '0.2.2'
 
 long_description <<~EOF
 = DESCRIPTION:
