@@ -22,7 +22,7 @@ module AutoUpdater
         package_name res.alt_name if res.alt_name
         version res.package_version if res.package_version
         arch res.package_arch if res.package_arch
-        ignore_failures res.continue_on_error
+        ignore_failure res.continue_on_error
       end
     end
   end
