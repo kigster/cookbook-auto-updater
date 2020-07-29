@@ -50,7 +50,7 @@ default['auto-updater']['update']['node_check_delay_hours'] = 24 * 3
 # something to update.
 default['auto-updater']['update']['force_update_now'] = false
 
-# Setting this to true disables reboot, even if some updates require it.
+# Setting this to false disables reboot, even if some updates require it.
 default['auto-updater']['update']['reboot_if_needed'] = true
 
 # This is the field where the resource will save it's last time the
